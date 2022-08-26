@@ -4,7 +4,7 @@ set -eo pipefail; [[ $TRACE ]] && set -x
 
 NGINX_VERSION="1.17.0"
 NGINX_TARBALL="nginx-${NGINX_VERSION}.tar.gz"
-PCRE_VERSION="8.43"
+PCRE_VERSION="8.45"
 PCRE_TARBALL="pcre-${PCRE_VERSION}.tar.gz"
 SIGIL_VERSION="0.4.0"
 SIGIL_TARBALL="sigil_${SIGIL_VERSION}_Linux_x86_64.tgz"
@@ -54,7 +54,7 @@ fi
 
 if [[ ! -d "${PCRE_TARBALL%.tar.gz}" ]]; then
   echo "-----> Download and unzip pcre ${PCRE_VERSION} via http"
-  curl -sSL "https://ftp.pcre.org/pub/pcre/${PCRE_TARBALL}" -o "${PCRE_TARBALL}"
+  curl -sSL "https://downloads.sourceforge.net/project/pcre/pcre/${PCRE_VERSION}/${PCRE_TARBALL}" -o "${PCRE_TARBALL}"
   tar xzf "${PCRE_TARBALL}" && rm -f "${PCRE_TARBALL}"
 fi
 
@@ -91,11 +91,9 @@ if [[ ! -f "${CACHE_DIR}/bin/nginx" ]]; then
     --with-zlib=../zlib-${ZLIB_VERSION} \
     --with-pcre \
     --with-cc-opt="-O2 -static -static-libgcc" \
-    --without-http_charset_module \
     --without-http_ssi_module \
     --without-http_userid_module \
     --without-http_access_module \
-    --without-http_auth_basic_module \
     --without-http_autoindex_module \
     --without-http_geo_module \
     --without-http_map_module \
@@ -112,7 +110,8 @@ if [[ ! -f "${CACHE_DIR}/bin/nginx" ]]; then
     --without-http_upstream_keepalive_module \
     --without-mail_pop3_module \
     --without-mail_imap_module \
-    --without-mail_smtp_module
+    --without-mail_smtp_module \
+    --with-http_realip_module
 
   sed -i "/CFLAGS/s/ \-O //g" objs/Makefile
 
@@ -144,7 +143,7 @@ if [ -f "$BUILD_DIR/app-nginx.conf.sigil" ] ; then
 
 # Allow deprecated nginx.conf.erb
 elif [ -f "$BUILD_DIR/nginx.conf.erb" ] ; then
-  echo "-----> DEPRECATED: using user provided nginx.conf.erb"
+  echo "-----> DEPRECATED: Using user provided nginx.conf.erb"
   cp "$BUILD_DIR/nginx.conf.erb" "$BUILD_DIR/nginx/nginx.conf.erb"
 
 # ...else, force default file
@@ -168,7 +167,7 @@ cat <<EOF >"$BUILD_DIR/start_nginx"
 #!/usr/bin/env bash
 rm -f /app/nginx/nginx.conf
 if [[ -f /app/nginx/app-nginx.conf.sigil ]]; then
-  /app/sigil/sigil -f /app/nginx/app-nginx.conf.sigil NGINX_ROOT="\$NGINX_ROOT" PORT="\$PORT" | cat -s > /app/nginx/nginx.conf
+  /app/sigil/sigil -f /app/nginx/app-nginx.conf.sigil NGINX_ROOT="\$NGINX_ROOT" NGINX_DEFAULT_REQUEST="\$NGINX_DEFAULT_REQUEST" PORT="\$PORT" | cat -s > /app/nginx/nginx.conf
 else
   erb /app/nginx/nginx.conf.erb > /app/nginx/nginx.conf
 fi
