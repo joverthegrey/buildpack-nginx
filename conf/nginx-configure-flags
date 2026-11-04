@@ -4,7 +4,7 @@
 # shellcheck disable=SC2034
 
 # https://nginx.org/en/download.html
-NGINX_VERSION="1.29.8"
+NGINX_VERSION="1.29.8-SSL"
 # https://github.com/PCRE2Project/pcre2/releases
 PCRE_VERSION="10.47"
 # https://github.com/gliderlabs/sigil/releases
