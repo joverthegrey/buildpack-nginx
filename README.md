@@ -30,7 +30,7 @@ You can override the nginx root via setting the `NGINX_ROOT` environment variabl
 # where the app is named `static-app`
 # and the root dir is _site
 dokku config:set static-app NGINX_ROOT=_site
-````
+```
 
 ### Default to index for history routing
 
@@ -39,12 +39,33 @@ By default, this buildpack will 404 if a requested file is not found. For static
 ```shell
 # where the app is named `static-app`
 # and the desired default response is index.html
-dokku config:set static-app NGINX_ROOT=index.html
+dokku config:set static-app NGINX_DEFAULT_REQUEST=index.html
+```
+
+### Custom nginx directives
+
+You can configure following nginx directives via environment variables.
+
+- `NGINX_WORKERS` : `worker_processes` directive
+- `NGINX_WORKER_CONNECTIONS` : `worker_connections` directive
+- `NGINX_CLIENT_BODY_TIMEOUT` : `client_body_timeout` directive
+- `NGINX_CLIENT_MAX_BODY_SIZE` : `client_max_body_size` directive (in MB)
+
+```shell
+# where the app is named `static-app`
+dokku config:set static-app NGINX_WORKERS=4 \
+                            NGINX_WORKER_CONNECTIONS=1024 \
+                            NGINX_CLIENT_BODY_TIMEOUT=5 \
+                            NGINX_CLIENT_MAX_BODY_SIZE=1
 ```
 
 ### Custom nginx config file
 
 You may completely override the built-in nginx config by placing an `app-nginx.conf.sigil` file in the root, modeled after our own [`conf/app-nginx.conf.sigil`](https://github.com/dokku/buildpack-nginx/blob/master/conf/app-nginx.conf.sigil). This will be used inside of the container, and not by the host Dokku instance. See the [sigil project](https://github.com/gliderlabs/sigil) for more information concerning the sigil format.
+
+### Custom MIME types
+
+Files will be served with a `Content-Type` according to a list of supported MIME types at [`conf/mime.types`](https://github.com/dokku/heroku-buildpack-nginx/blob/master/conf/mime.types). If you need to serve files of a MIME type not included in the list, you can provide your own `mime.types` file in the root.
 
 ## Credits and License
 

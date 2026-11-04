@@ -1,0 +1,28 @@
+---
+name: "review-app"
+
+# yamllint disable-line rule:truthy
+on:
+  # onl run this workflow on pull request events
+  pull_request
+
+jobs:
+  review_app:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cloning repo
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Push to dokku
+        uses: dokku/github-action@master
+        with:
+          # create a review app
+          command: review-apps:create
+          git_remote_url: "ssh://dokku@dokku.com/nginx-buildpack"
+          # specify `--force` as a flag for git pushes
+          git_push_flags: "--force"
+          # specify a name for the review app
+          review_app_name: nginx-buildpack-${{ github.event.pull_request.number }}
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
