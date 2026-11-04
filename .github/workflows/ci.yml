@@ -38,6 +38,7 @@ jobs:
           curl -sSL "https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz" | tar xz
           curl -sSL "https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${PCRE_VERSION}/pcre2-${PCRE_VERSION}.tar.gz" | tar xz
           curl -sSL "https://github.com/madler/zlib/archive/v${ZLIB_VERSION}.tar.gz" | tar xz
+          curl -sSL "https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL_VERSION}/openssl-${OPENSSL_VERSION}.tar.gz" | tar xz
 
       - name: Compile nginx
         run: |
